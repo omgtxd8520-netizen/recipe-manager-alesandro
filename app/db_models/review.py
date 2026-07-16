@@ -6,7 +6,22 @@ from datetime import datetime, timezone
 class Review:
     """
     Documento de la colección 'reviews'.
-    Representa una valoración de una receta por parte de un usuario.
+    Representa la valoración de un usuario sobre una receta puntual:
+    una calificación de 1 a 5 estrellas más un comentario libre.
+
+    Las reseñas se listan siempre ordenadas por created_at descendente
+    (ver RecipeManagerDAO.list_reviews_by_recipe) y alimentan el cálculo
+    de rating promedio que se expone junto a cada receta en la API.
+
+    Ejemplo
+    -------
+    reseña = Review(
+        recipe_id=receta_id,
+        user_id=usuario_id,
+        rating=5,
+        comment="El equilibrio perfecto de acidez y frescura.",
+    )
+    reseña_id = dao.create_review(reseña)
     """
     recipe_id: str
     user_id: str
@@ -34,9 +49,9 @@ class Review:
             try:
                 c_at = datetime.fromisoformat(c_at)
             except Exception:
-                c_at = datetime.utcnow()
+                c_at = datetime.now(timezone.utc)
         elif not isinstance(c_at, datetime):
-            c_at = datetime.utcnow()
+            c_at = datetime.now(timezone.utc)
 
         return cls(
             recipe_id=data.get("recipe_id", ""),
