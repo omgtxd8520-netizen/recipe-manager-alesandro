@@ -26,6 +26,13 @@ Ejecución local
 4. API: http://localhost:5000
 5. Jupyter Lab: http://localhost:8888 (token en logs)
 
+Script de ayuda (Windows PowerShell)
+
+Para automatizar instalación de dependencias, tests y levantar Docker puedes usar:
+
+  .\run_local.ps1              # crea .venv, instala deps y ejecuta tests
+  .\run_local.ps1 -StartDocker  # además levanta Docker Compose y siembra datos
+
 Ejemplos curl
 
 - Listar recetas:
