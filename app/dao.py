@@ -7,21 +7,14 @@ from db_models.review import Review
 
 class RecipeManagerDAO:
     """
-    Capa de Acceso a Datos (DAO) unificada para administrar las colecciones
-    'recipes', 'users' y 'reviews' en MongoDB.
+    Capa de Acceso a Datos (DAO) para las colecciones 'recipes', 'users'
+    y 'reviews' en MongoDB. Todo el resto de la app (la API Flask) pasa
+    siempre por acá en lugar de tocar pymongo directamente.
 
-    Abstrae todas las operaciones físicas sobre MongoDB en métodos con
-    semántica del dominio culinario (buscar por ingrediente, calificar
-    una receta, listar reseñas). El resto de la aplicación (la API Flask)
-    nunca construye queries de MongoDB directamente — siempre pasa por
-    esta clase.
-
-    Ejemplo
-    -------
-    from pymongo import MongoClient
-    client = MongoClient(MONGO_URI)
-    db = client[MONGO_DB_NAME]
-    dao = RecipeManagerDAO(db)
+    Uso:
+        client = MongoClient(MONGO_URI)
+        db = client[MONGO_DB_NAME]
+        dao = RecipeManagerDAO(db)
     """
 
     def __init__(self, db: Database):
@@ -35,25 +28,13 @@ class RecipeManagerDAO:
     # -------------------------------------------------------------
     def list_recipes(self, q: str = None, ingredient: str = None, tag: str = None) -> list[Recipe]:
         """
-        Obtiene la lista de recetas aplicando filtros opcionales.
+        Lista recetas con filtros opcionales combinables (AND):
+        - q: texto libre sobre título/tags (usa el índice de texto de setup_db.py)
+        - ingredient: ingrediente exacto que la receta debe contener
+        - tag: etiqueta exacta
 
-        Los tres filtros son combinables entre sí (AND lógico). Si no se
-        pasa ninguno, devuelve el catálogo completo.
-
-        Parámetros
-        ----------
-        q          : búsqueda de texto libre sobre título y tags (usa el
-                     índice de texto creado en setup_db.py)
-        ingredient : filtra recetas que contengan este ingrediente exacto
-        tag        : filtra recetas que tengan esta etiqueta
-
-        Ejemplo
-        -------
-        # Todas las recetas que mencionen "pollo" y estén etiquetadas "rápido"
-        recetas = dao.list_recipes(q="pollo", tag="rápido")
-
-        # Recetas que usan ajo
-        recetas = dao.list_recipes(ingredient="ajo")
+        >>> dao.list_recipes(q="pollo", tag="rápido")
+        >>> dao.list_recipes(ingredient="ajo")
         """
         filter_q = {}
         if q:
@@ -68,14 +49,9 @@ class RecipeManagerDAO:
 
     def get_recipe(self, recipe_id: str) -> Recipe | None:
         """
-        Busca una receta por su ObjectId.
-        Devuelve None si el id no existe o no es un ObjectId válido.
+        Busca una receta por ObjectId. None si no existe o el id es inválido.
 
-        Ejemplo
-        -------
-        receta = dao.get_recipe("64f1a2b3c4d5e6f7a8b9c0d1")
-        if receta:
-            print(receta.title)
+        >>> dao.get_recipe("64f1a2b3c4d5e6f7a8b9c0d1")
         """
         try:
             _id = ObjectId(recipe_id)
@@ -86,30 +62,18 @@ class RecipeManagerDAO:
 
     def create_recipe(self, recipe: Recipe) -> str:
         """
-        Inserta una receta nueva. Devuelve el id generado por MongoDB.
+        Inserta una receta y devuelve el id generado por MongoDB.
 
-        Ejemplo
-        -------
-        receta = Recipe(
-            title="Pasta al ajo",
-            ingredients=["pasta", "ajo", "aceite", "perejil"],
-            tags=["pasta", "almuerzo"],
-            servings=3,
-            author_id=autor_id,
-        )
-        receta_id = dao.create_recipe(receta)
+        >>> dao.create_recipe(Recipe(title="Pasta al ajo", ingredients=["pasta", "ajo"]))
         """
         res = self._recipes.insert_one(recipe.to_dict())
         return str(res.inserted_id)
 
     def update_recipe(self, recipe_id: str, recipe: Recipe) -> bool:
         """
-        Reemplaza una receta existente por su ID.
-        Devuelve True si se encontró y actualizó, False si el id no existe.
+        Reemplaza una receta existente. True si el id existía y se actualizó.
 
-        Ejemplo
-        -------
-        actualizada = dao.update_recipe(receta_id, receta_editada)
+        >>> dao.update_recipe(receta_id, receta_editada)
         """
         try:
             _id = ObjectId(recipe_id)
@@ -120,19 +84,15 @@ class RecipeManagerDAO:
 
     def delete_recipe(self, recipe_id: str) -> bool:
         """
-        Elimina una receta por su ID y, en cascada, todas sus reseñas
-        asociadas (evita reseñas huérfanas apuntando a una receta borrada).
-        Devuelve True si la receta existía y fue eliminada.
+        Elimina una receta y, en cascada, sus reseñas asociadas para no
+        dejar reseñas huérfanas apuntando a una receta borrada.
 
-        Ejemplo
-        -------
-        borrada = dao.delete_recipe(receta_id)
+        >>> dao.delete_recipe(receta_id)
         """
         try:
             _id = ObjectId(recipe_id)
         except Exception:
             return False
-        # Eliminar las reseñas asociadas antes de borrar la receta
         self._reviews.delete_many({"recipe_id": recipe_id})
         res = self._recipes.delete_one({'_id': _id})
         return res.deleted_count > 0
@@ -141,25 +101,12 @@ class RecipeManagerDAO:
     # Operaciones: Users (Usuarios)
     # -------------------------------------------------------------
     def list_users(self) -> list[User]:
-        """
-        Obtiene todos los usuarios registrados (chefs, foodies y admins).
-
-        Ejemplo
-        -------
-        usuarios = dao.list_users()
-        """
+        """Devuelve todos los usuarios (chefs, foodies y admins) registrados."""
         docs = self._users.find()
         return [User.from_dict(d) for d in docs]
 
     def get_user(self, user_id: str) -> User | None:
-        """
-        Busca un usuario por su ID.
-        Devuelve None si el id no existe o no es un ObjectId válido.
-
-        Ejemplo
-        -------
-        usuario = dao.get_user(autor_id)
-        """
+        """Busca un usuario por id. None si no existe o el id es inválido."""
         try:
             _id = ObjectId(user_id)
         except Exception:
@@ -169,25 +116,15 @@ class RecipeManagerDAO:
 
     def create_user(self, user: User) -> str:
         """
-        Inserta un nuevo usuario. Devuelve el id generado por MongoDB.
+        Inserta un usuario nuevo y devuelve el id generado.
 
-        Ejemplo
-        -------
-        usuario = User(username="Jamie Oliver", email="jamie@foodies.com", role="chef")
-        usuario_id = dao.create_user(usuario)
+        >>> dao.create_user(User(username="Jamie Oliver", email="jamie@foodies.com", role="chef"))
         """
         res = self._users.insert_one(user.to_dict())
         return str(res.inserted_id)
 
     def delete_user(self, user_id: str) -> bool:
-        """
-        Elimina un usuario por su ID.
-        Devuelve True si el usuario existía y fue eliminado.
-
-        Ejemplo
-        -------
-        borrado = dao.delete_user(usuario_id)
-        """
+        """Elimina un usuario por id. True si existía y se borró."""
         try:
             _id = ObjectId(user_id)
         except Exception:
@@ -199,50 +136,25 @@ class RecipeManagerDAO:
     # Operaciones: Reviews (Reseñas / Calificaciones)
     # -------------------------------------------------------------
     def list_reviews_by_recipe(self, recipe_id: str) -> list[Review]:
-        """
-        Lista todas las reseñas de una receta, de la más reciente a la
-        más antigua.
-
-        Ejemplo
-        -------
-        reseñas = dao.list_reviews_by_recipe(receta_id)
-        for r in reseñas:
-            print(r.rating, r.comment)
-        """
+        """Reseñas de una receta, de la más reciente a la más antigua."""
         docs = self._reviews.find({"recipe_id": recipe_id}).sort("created_at", -1)
         return [Review.from_dict(d) for d in docs]
 
     def create_review(self, review: Review) -> str:
         """
-        Inserta una reseña para una receta. Devuelve el id generado.
+        Inserta una reseña y devuelve el id generado.
 
-        Ejemplo
-        -------
-        reseña = Review(
-            recipe_id=receta_id,
-            user_id=usuario_id,
-            rating=5,
-            comment="Quedó espectacular, la volvería a hacer.",
-        )
-        reseña_id = dao.create_review(reseña)
+        >>> dao.create_review(Review(recipe_id=rid, user_id=uid, rating=5, comment="Buenísima"))
         """
         res = self._reviews.insert_one(review.to_dict())
         return str(res.inserted_id)
 
     def get_recipe_average_rating(self, recipe_id: str) -> float:
         """
-        Calcula el promedio de calificación (1 a 5 estrellas) de una
-        receta a partir de todas sus reseñas. Devuelve 0.0 si la receta
-        no tiene reseñas todavía.
-
-        Usa un pipeline de agregación de MongoDB ($match + $group) en
-        lugar de traer todas las reseñas y promediar en Python — más
-        eficiente cuando una receta tiene muchas reseñas.
-
-        Ejemplo
-        -------
-        promedio = dao.get_recipe_average_rating(receta_id)
-        # 4.7
+        Promedio de calificación (1-5) de una receta a partir de sus
+        reseñas. 0.0 si todavía no tiene ninguna. Se calcula con un
+        pipeline de agregación ($match + $group) en vez de traer todas
+        las reseñas y promediar en Python.
         """
         pipeline = [
             {"$match": {"recipe_id": recipe_id}},

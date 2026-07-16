@@ -4,22 +4,11 @@ from dataclasses import dataclass
 @dataclass
 class User:
     """
-    Documento de la colección 'users'.
-    Representa a una persona del sistema: autor de recetas y/o autor
-    de reseñas. El campo role distingue tres perfiles:
-
-    - "chef"   : publica recetas
-    - "foodie" : consume y califica recetas de otros
-    - "admin"  : gestión general de la plataforma
-
-    Un mismo usuario puede publicar recetas y también dejar reseñas
-    en recetas de otros — el rol es orientativo para la UI, no una
-    restricción dura de permisos a nivel de datos.
-
-    Ejemplo
-    -------
-    chef = User(username="Jamie Oliver", email="jamie@foodies.com", role="chef")
-    chef_id = dao.create_user(chef)
+    Documento de la colección 'users'. El rol es orientativo para la UI,
+    no una restricción dura a nivel de datos:
+    - chef: publica recetas
+    - foodie: consume y califica recetas de otros
+    - admin: gestión general de la plataforma
     """
     username: str
     email: str

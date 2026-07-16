@@ -4,24 +4,9 @@ from dataclasses import dataclass, field
 @dataclass
 class Recipe:
     """
-    Documento de la colección 'recipes'.
-    Representa una receta de cocina con tipado seguro y métodos de
-    mapeo hacia/desde el formato nativo de MongoDB.
-
-    El campo author_id vincula la receta con el usuario (chef o foodie)
-    que la publicó — la API resuelve ese id contra la colección 'users'
-    para mostrar el nombre del autor sin duplicar datos.
-
-    Ejemplo
-    -------
-    receta = Recipe(
-        title="Ceviche Clásico Peruano",
-        ingredients=["pescado fresco", "limón", "cebolla morada"],
-        tags=["marisco", "fresco", "peruano"],
-        servings=2,
-        author_id=autor_id,
-    )
-    receta_id = dao.create_recipe(receta)
+    Documento de la colección 'recipes'. author_id vincula la receta con
+    el usuario que la publicó (la API resuelve ese id contra 'users'
+    para no duplicar el nombre del autor en cada receta).
     """
     title: str
     ingredients: list[str] = field(default_factory=list)

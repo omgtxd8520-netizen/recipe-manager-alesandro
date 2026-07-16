@@ -10,24 +10,18 @@
 
 ---
 
-## El problema
+## Descripción
 
-Las recetas de cocina rara vez viven en un solo lugar. Se reparten entre capturas de pantalla, notas del celular, grupos de WhatsApp familiares y cuadernos heredados de generación en generación. No hay un criterio común para buscarlas (por ingrediente disponible, por tipo de plato, por quién la subió), no hay forma de saber si una receta es realmente buena antes de cocinarla, y no existe un registro de quién la creó ni de qué opinaron los que ya la probaron.
+RecipeManager es una API REST hecha en Flask sobre MongoDB para administrar recetas, autores y reseñas desde un mismo lugar, en vez de tenerlas repartidas entre notas del celular, capturas de pantalla y grupos de WhatsApp. Permite buscar recetas por texto, ingrediente o etiqueta, y calificarlas — así se distingue una receta realmente recomendada de una que solo suena bien.
 
-RecipeManager resuelve ese problema de organización: centraliza recetas, autores y reseñas en una única base de datos consultable, con una API REST que permite buscar por texto, ingrediente o etiqueta, y un sistema de calificaciones que separa una receta bien recomendada de una que solo suena bien.
+El backend administra tres colecciones relacionadas entre sí (`recipes`, `users`, `reviews`) a través de una capa DAO (`RecipeManagerDAO`) que concentra toda la lógica de acceso a datos, para que el resto de la app no tenga que construir queries de MongoDB directamente.
 
----
-
-## ¿Qué es RecipeManager?
-
-RecipeManager es una API REST construida en Flask sobre MongoDB que administra tres colecciones relacionadas entre sí — `recipes`, `users` y `reviews` — a través de una capa DAO (`RecipeManagerDAO`) que concentra toda la lógica de acceso a datos y aísla al resto de la aplicación de las consultas de MongoDB.
-
-Incluye, además del backend:
+Además del backend, el proyecto incluye:
 - Documentación interactiva de la API vía Swagger/OpenAPI (`/docs`)
 - Un frontend estático simple para navegar el catálogo de recetas
 - Notebooks Jupyter para análisis exploratorio de las recetas cargadas
 - Suite de tests unitarios e integración, con CI en GitHub Actions
-- Datos de ejemplo (seed) listos para levantar una demo completa en minutos
+- Datos de ejemplo (seed) para levantar una demo completa en minutos
 
 ---
 

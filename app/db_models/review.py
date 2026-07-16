@@ -5,23 +5,10 @@ from datetime import datetime, timezone
 @dataclass
 class Review:
     """
-    Documento de la colección 'reviews'.
-    Representa la valoración de un usuario sobre una receta puntual:
-    una calificación de 1 a 5 estrellas más un comentario libre.
-
-    Las reseñas se listan siempre ordenadas por created_at descendente
-    (ver RecipeManagerDAO.list_reviews_by_recipe) y alimentan el cálculo
-    de rating promedio que se expone junto a cada receta en la API.
-
-    Ejemplo
-    -------
-    reseña = Review(
-        recipe_id=receta_id,
-        user_id=usuario_id,
-        rating=5,
-        comment="El equilibrio perfecto de acidez y frescura.",
-    )
-    reseña_id = dao.create_review(reseña)
+    Documento de la colección 'reviews': la calificación (1-5) y el
+    comentario de un usuario sobre una receta puntual. Se listan siempre
+    de más reciente a más antigua y alimentan el rating promedio que se
+    muestra junto a cada receta en la API.
     """
     recipe_id: str
     user_id: str
