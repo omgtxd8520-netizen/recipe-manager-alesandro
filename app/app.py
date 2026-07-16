@@ -4,13 +4,16 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_restx import Api, Resource, fields
 from pymongo import MongoClient
 
-# Asegurar que el directorio de la aplicación esté en el path para importaciones limpias
+# Asegurar que el directorio de la aplicación y la raíz estén en el path para importaciones
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')))
 
 from db_models.recipe import Recipe  # noqa: E402
 from db_models.user import User  # noqa: E402
 from db_models.review import Review  # noqa: E402
 from dao import RecipeManagerDAO  # noqa: E402
+from config_vars import MONGO_URI, MONGO_DB_NAME  # noqa: E402
+import setup_db  # noqa: E402
 
 AUTHOR = "Alesandro David Fajardo Torres"
 
@@ -42,21 +45,16 @@ ns_reviews = api.namespace('reviews', description='Operaciones sobre reseñas y 
 if os.environ.get('MONGO_USE_MOCK') == '1':
     import mongomock
     client = mongomock.MongoClient()
+    db = client[MONGO_DB_NAME]
 else:
-    MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://mongo:27017/recipe_db')
     client = MongoClient(MONGO_URI)
+    db = client[MONGO_DB_NAME]
+    try:
+        setup_db.setup()
+    except Exception:
+        pass
 
-# Conexión a la base de datos y la colección
-DB_NAME = os.environ.get('MONGO_DB_NAME', 'recipe_db')
-db = client[DB_NAME]
 recipes_col = db.get_collection('recipes')
-
-# Asegurar la creación de índices al arrancar de forma idempotente
-try:
-    recipes_col.create_index([('title', 'text'), ('tags', 'text')])
-    recipes_col.create_index('ingredients')
-except Exception:
-    pass
 
 # Instanciar el DAO unificado (RecipeManagerDAO)
 recipe_dao = RecipeManagerDAO(db)

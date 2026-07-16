@@ -11,11 +11,11 @@ from app.db_models.recipe import Recipe  # noqa: E402
 from app.db_models.review import Review  # noqa: E402
 from app.dao import RecipeManagerDAO  # noqa: E402
 
-MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://mongo:27017/recipe_db')
-DB_NAME = os.environ.get('MONGO_DB_NAME', 'recipe_db')
+from config_vars import MONGO_URI, MONGO_DB_NAME  # noqa: E402
+import setup_db  # noqa: E402
 
 client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
+db = client[MONGO_DB_NAME]
 
 # Instanciar el DAO unificado
 recipe_dao = RecipeManagerDAO(db)
@@ -156,10 +156,8 @@ def seed():
         recipe_dao.create_review(rev)
         print(f"  Reseña creada para receta {rev.recipe_id} (Calificación: {rev.rating}★)")
 
-    # 4. Configurar índices de texto y campo
-    db["recipes"].create_index([('title', 'text'), ('tags', 'text')])
-    db["recipes"].create_index('ingredients')
-    db["reviews"].create_index('recipe_id')
+    # 4. Configurar índices de texto y campo utilizando setup_db
+    setup_db.setup()
 
     print("\n[Semillero] Base de datos sembrada con éxito en esquema multi-colección relacional.")
 
