@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RecipeManager — UI</title>
+  <style>body{font-family:Arial,Helvetica,sans-serif;padding:20px}ul{list-style:none;padding:0}li{margin:8px 0}</style>
+</head>
+<body>
+  <h1>RecipeManager (Alesandro David Fajardo Torres)</h1>
+  <p>Pequeña interfaz para listar recetas</p>
+  <input id="q" placeholder="Buscar ingrediente o texto" />
+  <button onclick="load()">Buscar</button>
+  <ul id="list"></ul>
+  <script>
+    async function load(){
+      const q = document.getElementById('q').value;
+      const url = '/recipes' + (q?('?q='+encodeURIComponent(q)):'');
+      const res = await fetch(url);
+      const data = await res.json();
+      const list = document.getElementById('list'); list.innerHTML='';
+      data.forEach(r=>{
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${r.title}</strong> — ${r.ingredients? r.ingredients.join(', '):''}`;
+        list.appendChild(li);
+      });
+    }
+    load();
+  </script>
+</body>
+</html>
