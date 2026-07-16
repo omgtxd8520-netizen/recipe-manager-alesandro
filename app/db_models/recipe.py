@@ -11,16 +11,20 @@ class Recipe:
     ingredients: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     servings: int = 1
+    author_id: str | None = None
     id: str | None = None
 
     def to_dict(self) -> dict:
         """Convierte la receta a dict serializable para MongoDB."""
-        return {
+        d = {
             "title": self.title,
             "ingredients": self.ingredients,
             "tags": self.tags,
             "servings": self.servings
         }
+        if self.author_id:
+            d["author_id"] = self.author_id
+        return d
 
     @classmethod
     def from_dict(cls, data: dict) -> "Recipe":
@@ -31,5 +35,6 @@ class Recipe:
             ingredients=data.get("ingredients", []),
             tags=data.get("tags", []),
             servings=data.get("servings", 1),
+            author_id=data.get("author_id"),
             id=_id
         )

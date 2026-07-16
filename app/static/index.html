@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RecipeManager — Panel de Control</title>
-  <!-- Google Fonts & Tailwind-like CSS variables for maximum flexibility -->
+  <title>RecipeManager — Premium Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,6 +19,7 @@
       --accent-glow: rgba(168, 85, 247, 0.15);
       --accent-color: #d946ef;
       --success-color: #10b981;
+      --rating-color: #f59e0b;
       --font-family: 'Outfit', sans-serif;
     }
 
@@ -38,7 +38,6 @@
       position: relative;
     }
 
-    /* Ambient background glows */
     body::before {
       content: '';
       position: absolute;
@@ -69,7 +68,6 @@
       padding: 40px 20px;
     }
 
-    /* Header Design */
     header {
       text-align: center;
       margin-bottom: 50px;
@@ -121,7 +119,6 @@
       color: var(--accent-color);
     }
 
-    /* Search and Controls Section */
     .controls-panel {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -154,7 +151,7 @@
       border-radius: 16px;
       color: var(--text-main);
       font-size: 1rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s ease;
     }
 
     .search-input-container input:focus {
@@ -174,7 +171,6 @@
       pointer-events: none;
     }
 
-    /* Primary & Secondary Buttons */
     .btn {
       background: var(--primary-gradient);
       border: none;
@@ -206,10 +202,8 @@
     .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.1);
       border-color: var(--card-hover-border);
-      box-shadow: none;
     }
 
-    /* Tag Filters */
     .filter-tags {
       display: flex;
       gap: 8px;
@@ -235,15 +229,13 @@
       transform: scale(1.05);
     }
 
-    /* Recipes Grid */
     .recipes-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
       gap: 24px;
       animation: fadeIn 1s ease-out;
     }
 
-    /* Recipe Card */
     .recipe-card {
       background: var(--card-bg);
       backdrop-filter: blur(12px);
@@ -273,7 +265,7 @@
     }
 
     .recipe-card:hover {
-      transform: translateY(-5px) scale(1.01);
+      transform: translateY(-5px);
       border-color: var(--card-hover-border);
       box-shadow: 0 12px 30px rgba(168, 85, 247, 0.15);
     }
@@ -294,41 +286,62 @@
     }
 
     .servings-badge {
-      background: rgba(168, 85, 247, 0.12);
-      border: 1px solid rgba(168, 85, 247, 0.2);
-      color: #c084fc;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .rating-badge {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
       padding: 4px 10px;
       border-radius: 50px;
       font-size: 0.75rem;
       font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
     }
 
     .recipe-title {
-      font-size: 1.4rem;
+      font-size: 1.45rem;
       font-weight: 700;
       color: var(--text-main);
       margin-top: 8px;
-      line-height: 1.25;
+      line-height: 1.2;
     }
 
-    /* Recipe tags */
+    .author-name {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .author-name strong {
+      color: var(--text-main);
+    }
+
     .card-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
     .card-tag {
-      background: rgba(255, 255, 255, 0.05);
-      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.72rem;
       padding: 3px 8px;
       border-radius: 6px;
       color: var(--text-muted);
       border: 1px solid var(--card-border);
     }
 
-    /* Ingredients section */
     .ingredients-title {
       font-size: 0.85rem;
       font-weight: 600;
@@ -355,14 +368,14 @@
       font-size: 0.8rem;
     }
 
-    /* Card Actions */
     .card-actions {
       display: flex;
-      justify-content: flex-end;
-      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
       margin-top: auto;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
       padding-top: 16px;
+      gap: 12px;
     }
 
     .action-icon-btn {
@@ -391,7 +404,6 @@
       border-color: rgba(239, 68, 68, 0.3);
     }
 
-    /* Empty Grid State */
     .empty-state {
       grid-column: 1 / -1;
       text-align: center;
@@ -405,12 +417,9 @@
     .empty-state-icon {
       font-size: 3rem;
       margin-bottom: 16px;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
 
-    /* Form Modal overlay */
+    /* Modal Overlay & Design */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -438,11 +447,13 @@
       background: #0f172a;
       border: 1px solid var(--card-border);
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
       border-radius: 24px;
       padding: 32px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
       transform: scale(0.9);
+      max-height: 90vh;
+      overflow-y: auto;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
@@ -455,6 +466,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 16px;
     }
 
     .modal-title {
@@ -473,7 +486,6 @@
       cursor: pointer;
     }
 
-    /* Form Styles */
     .form-group {
       margin-bottom: 18px;
     }
@@ -486,7 +498,7 @@
       margin-bottom: 6px;
     }
 
-    .form-group input, .form-group textarea {
+    .form-group input, .form-group textarea, .form-group select {
       width: 100%;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--card-border);
@@ -497,10 +509,89 @@
       transition: all 0.3s ease;
     }
 
-    .form-group input:focus, .form-group textarea:focus {
+    .form-group select option {
+      background-color: #0f172a;
+      color: var(--text-main);
+    }
+
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
       outline: none;
       border-color: #a855f7;
       background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* Reviews section in recipe details */
+    .reviews-container {
+      margin-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 20px;
+    }
+
+    .reviews-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .review-card-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .review-user-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .review-username {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--accent-color);
+    }
+
+    .review-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .review-comment {
+      font-size: 0.88rem;
+      color: #d1d5db;
+      line-height: 1.4;
+      margin-top: 6px;
+    }
+
+    .add-review-form {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .rating-selector {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .rating-star-input {
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: color 0.15s ease;
+    }
+
+    .rating-star-input.active {
+      color: var(--rating-color);
     }
 
     .modal-actions {
@@ -510,7 +601,6 @@
       margin-top: 28px;
     }
 
-    /* Spinner Animation */
     .spinner {
       border: 3px solid rgba(255,255,255,0.05);
       border-radius: 50%;
@@ -521,32 +611,19 @@
       display: inline-block;
     }
 
-    /* Keyframes */
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
 
     @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fadeIn {
@@ -562,8 +639,8 @@
         <div class="logo-icon">🍳</div>
         <h1>RecipeManager</h1>
       </div>
-      <p style="color: var(--text-muted);">Administración elegante y estructurada de recetas culinarias</p>
-      <div class="author-badge">Proyecto de: <strong>Alesandro David Fajardo Torres</strong></div>
+      <p style="color: var(--text-muted);">Relational MongoDB platform: Recipes, Chefs, and Ratings</p>
+      <div class="author-badge">Diseñado por: <strong>Alesandro David Fajardo Torres</strong></div>
     </header>
 
     <div class="controls-panel">
@@ -573,10 +650,10 @@
           <input type="text" id="q" placeholder="Buscar por título, ingrediente o etiqueta..." oninput="debounceLoad()" />
         </div>
         <button class="btn btn-secondary" onclick="clearSearch()">Limpiar</button>
-        <button class="btn" onclick="openModal('create')">➕ Nueva Receta</button>
+        <button class="btn" onclick="openCreateModal()">➕ Nueva Receta</button>
       </div>
       <div class="filter-tags" id="quick-tags">
-        <!-- Quick filters will be inserted here dynamically -->
+        <!-- Quick filters loaded dynamically -->
       </div>
     </div>
 
@@ -590,13 +667,19 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2 class="modal-title" id="modal-title">Agregar Nueva Receta</h2>
-        <button class="close-modal-btn" onclick="closeModal()">✕</button>
+        <button class="close-modal-btn" onclick="closeModal('recipe-modal')">✕</button>
       </div>
       <form id="recipe-form" onsubmit="saveRecipe(event)">
         <input type="hidden" id="recipe-id" />
         <div class="form-group">
           <label for="recipe-title">Título de la receta *</label>
           <input type="text" id="recipe-title" required placeholder="Ej: Pizza Napolitana" />
+        </div>
+        <div class="form-group">
+          <label for="recipe-author">Chef / Autor *</label>
+          <select id="recipe-author" required>
+            <!-- Users dropdown loaded dynamically -->
+          </select>
         </div>
         <div class="form-group">
           <label for="recipe-ingredients">Ingredientes (separados por coma) *</label>
@@ -611,16 +694,67 @@
           <input type="number" id="recipe-servings" min="1" value="2" required />
         </div>
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('recipe-modal')">Cancelar</button>
           <button type="submit" class="btn">Guardar</button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- Recipe Details and Reviews Modal -->
+  <div class="modal-overlay" id="details-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="details-title">Detalles de la Receta</h2>
+        <button class="close-modal-btn" onclick="closeModal('details-modal')">✕</button>
+      </div>
+      <div id="details-body">
+        <!-- Details loaded dynamically -->
+      </div>
+
+      <div class="reviews-container">
+        <div class="reviews-title">
+          <span>Reseñas y Comentarios</span>
+          <span class="rating-badge" id="details-avg-rating">⭐ 0.0</span>
+        </div>
+        <div id="reviews-list">
+          <!-- Reviews list loaded dynamically -->
+        </div>
+
+        <form class="add-review-form" id="review-form" onsubmit="submitReview(event)">
+          <h4 style="margin-bottom: 12px; font-size: 0.95rem; font-weight: 600;">Escribe una reseña</h4>
+          <input type="hidden" id="review-recipe-id" />
+          <div class="form-group">
+            <label for="review-user">Usuario / Comensal *</label>
+            <select id="review-user" required>
+              <!-- Users dropdown loaded dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Calificación *</label>
+            <div class="rating-selector">
+              <span class="rating-star-input" data-value="1" onclick="setStarRating(1)">★</span>
+              <span class="rating-star-input" data-value="2" onclick="setStarRating(2)">★</span>
+              <span class="rating-star-input" data-value="3" onclick="setStarRating(3)">★</span>
+              <span class="rating-star-input" data-value="4" onclick="setStarRating(4)">★</span>
+              <span class="rating-star-input" data-value="5" onclick="setStarRating(5)">★</span>
+              <input type="hidden" id="review-rating-val" value="5" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="review-comment">Opinión / Comentario</label>
+            <textarea id="review-comment" rows="2" placeholder="Cuéntanos qué te pareció la receta..."></textarea>
+          </div>
+          <button type="submit" class="btn" style="padding: 10px 20px; font-size: 0.9rem;">Publicar Reseña</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
     let activeTag = '';
     let debounceTimer;
+    let cachedUsers = [];
 
     function debounceLoad() {
       clearTimeout(debounceTimer);
@@ -637,18 +771,13 @@
     }
 
     function filterByTag(tag) {
-      if (activeTag === tag) {
-        activeTag = '';
-      } else {
-        activeTag = tag;
-      }
+      activeTag = (activeTag === tag) ? '' : tag;
       updateTagFilters();
       loadRecipes();
     }
 
     function updateTagFilters() {
-      const tags = document.querySelectorAll('.filter-tag');
-      tags.forEach(t => {
+      document.querySelectorAll('.filter-tag').forEach(t => {
         if (t.dataset.tag === activeTag) {
           t.classList.add('active');
         } else {
@@ -657,10 +786,33 @@
       });
     }
 
+    async function fetchUsers() {
+      try {
+        const res = await fetch('/users');
+        cachedUsers = await res.json();
+        populateUserDropdowns();
+      } catch (err) {
+        console.error('Error al cargar usuarios:', err);
+      }
+    }
+
+    function populateUserDropdowns() {
+      const authorSelect = document.getElementById('recipe-author');
+      const reviewUserSelect = document.getElementById('review-user');
+      
+      let optionsHtml = '<option value="" disabled selected>Selecciona un usuario</option>';
+      cachedUsers.forEach(u => {
+        optionsHtml += `<option value="${u.id}">${u.username} (${u.role})</option>`;
+      });
+      
+      authorSelect.innerHTML = optionsHtml;
+      reviewUserSelect.innerHTML = optionsHtml;
+    }
+
     async function loadRecipes() {
       const query = document.getElementById('q').value;
       const grid = document.getElementById('recipes-grid');
-      grid.innerHTML = '<div class="empty-state"><span class="spinner"></span><p style="margin-top: 12px;">Cargando recetas...</p></div>';
+      grid.innerHTML = '<div class="empty-state"><span class="spinner"></span><p style="margin-top: 12px;">Cargando recetas del servidor...</p></div>';
 
       try {
         let url = '/recipes';
@@ -678,41 +830,47 @@
             <div class="empty-state">
               <div class="empty-state-icon">🍽️</div>
               <h3>No se encontraron recetas</h3>
-              <p style="margin-top: 6px;">Prueba ajustando los criterios de búsqueda o agrega una receta nueva.</p>
+              <p style="margin-top: 6px;">Prueba ajustando los criterios de búsqueda.</p>
             </div>
           `;
           return;
         }
 
-        // Gather all unique tags for the top bar dynamically
         const allTags = new Set();
 
         data.forEach(r => {
-          if (r.tags) {
-            r.tags.forEach(t => allTags.add(t));
-          }
+          if (r.tags) r.tags.forEach(t => allTags.add(t));
 
           const card = document.createElement('div');
           card.className = 'recipe-card';
           
           const tagsHtml = r.tags ? r.tags.map(t => `<span class="card-tag">${t}</span>`).join('') : '';
-          const ingredientsHtml = r.ingredients ? r.ingredients.map(i => `<span class="ingredient-item">${i}</span>`).join('') : '';
+          const starsVal = r.average_rating ? r.average_rating.toFixed(1) : '0.0';
+          const starsHtml = r.average_rating > 0 ? `⭐ ${starsVal}` : '☆ Sin calificar';
 
           card.innerHTML = `
-            <div>
+            <div onclick="openDetailsModal('${r.id}')" style="cursor: pointer;">
               <div class="recipe-header">
                 <div class="recipe-meta">
                   <span class="servings-badge">👥 ${r.servings || 1} porciones</span>
+                  <span class="rating-badge">${starsHtml}</span>
                 </div>
                 <h3 class="recipe-title">${r.title}</h3>
+                <div class="author-name">Por: <strong>${r.author_name || 'Desconocido'}</strong></div>
                 <div class="card-tags">${tagsHtml}</div>
               </div>
-              <div class="ingredients-title">Ingredientes</div>
-              <div class="ingredients-list">${ingredientsHtml}</div>
+              <div class="ingredients-title">Ingredientes clave</div>
+              <div class="ingredients-list">
+                ${r.ingredients ? r.ingredients.slice(0, 4).map(i => `<span class="ingredient-item">${i}</span>`).join('') : ''}
+                ${r.ingredients && r.ingredients.length > 4 ? '<span class="ingredient-item">...</span>' : ''}
+              </div>
             </div>
             <div class="card-actions">
-              <button class="action-icon-btn" onclick="openModal('edit', '${r.id}')" title="Editar receta">✏️</button>
-              <button class="action-icon-btn delete-btn" onclick="deleteRecipe('${r.id}')" title="Eliminar receta">🗑️</button>
+              <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="openDetailsModal('${r.id}')">Ver Reseñas</button>
+              <div style="display: flex; gap: 8px;">
+                <button class="action-icon-btn" onclick="openEditModal('${r.id}')" title="Editar receta">✏️</button>
+                <button class="action-icon-btn delete-btn" onclick="deleteRecipe('${r.id}')" title="Eliminar receta">🗑️</button>
+              </div>
             </div>
           `;
           grid.appendChild(card);
@@ -740,34 +898,128 @@
       container.innerHTML = html;
     }
 
-    function openModal(mode, id = '') {
+    function openCreateModal() {
       const modal = document.getElementById('recipe-modal');
       const form = document.getElementById('recipe-form');
-      const title = document.getElementById('modal-title');
-      
       form.reset();
       document.getElementById('recipe-id').value = '';
+      document.getElementById('modal-title').innerText = 'Agregar Nueva Receta';
+      modal.classList.add('active');
+    }
+
+    function openEditModal(id) {
+      const modal = document.getElementById('recipe-modal');
+      const form = document.getElementById('recipe-form');
+      form.reset();
       
-      if (mode === 'create') {
-        title.innerText = 'Agregar Nueva Receta';
-        modal.classList.add('active');
-      } else if (mode === 'edit') {
-        title.innerText = 'Editar Receta';
-        fetch(`/recipes/${id}`)
-          .then(res => res.json())
-          .then(r => {
-            document.getElementById('recipe-id').value = r.id;
-            document.getElementById('recipe-title').value = r.title;
-            document.getElementById('recipe-ingredients').value = r.ingredients ? r.ingredients.join(', ') : '';
-            document.getElementById('recipe-tags').value = r.tags ? r.tags.join(', ') : '';
-            document.getElementById('recipe-servings').value = r.servings || 2;
-            modal.classList.add('active');
-          });
+      fetch(`/recipes/${id}`)
+        .then(res => res.json())
+        .then(r => {
+          document.getElementById('recipe-id').value = r.id;
+          document.getElementById('recipe-title').value = r.title;
+          document.getElementById('recipe-author').value = r.author_id || '';
+          document.getElementById('recipe-ingredients').value = r.ingredients ? r.ingredients.join(', ') : '';
+          document.getElementById('recipe-tags').value = r.tags ? r.tags.join(', ') : '';
+          document.getElementById('recipe-servings').value = r.servings || 2;
+          document.getElementById('modal-title').innerText = 'Editar Receta';
+          modal.classList.add('active');
+        });
+    }
+
+    async function openDetailsModal(id) {
+      const modal = document.getElementById('details-modal');
+      const body = document.getElementById('details-body');
+      const avgRating = document.getElementById('details-avg-rating');
+      const form = document.getElementById('review-form');
+      
+      form.reset();
+      setStarRating(5);
+      document.getElementById('review-recipe-id').value = id;
+      
+      body.innerHTML = '<span class="spinner"></span>';
+      modal.classList.add('active');
+
+      try {
+        const resRecipe = await fetch(`/recipes/${id}`);
+        const r = await resRecipe.json();
+
+        const starsVal = r.average_rating ? r.average_rating.toFixed(1) : '0.0';
+        avgRating.innerText = `⭐ ${starsVal}`;
+
+        body.innerHTML = `
+          <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 4px;">${r.title}</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Chef Autor: <strong style="color: var(--accent-color);">${r.author_name || 'Desconocido'}</strong></p>
+            <div style="display: flex; gap: 6px; margin-top: 10px;">
+              ${r.tags ? r.tags.map(t => `<span class="card-tag">${t}</span>`).join('') : ''}
+              <span class="servings-badge" style="background: rgba(255,255,255,0.05); font-size:0.75rem;">👥 ${r.servings} Porciones</span>
+            </div>
+          </div>
+          <div style="margin-bottom: 12px;">
+            <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 8px;">Ingredientes requeridos</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              ${r.ingredients ? r.ingredients.map(i => `<span class="ingredient-item">${i}</span>`).join('') : ''}
+            </div>
+          </div>
+        `;
+
+        loadReviews(id);
+      } catch (err) {
+        body.innerHTML = '<p>Error al cargar detalles.</p>';
       }
     }
 
-    function closeModal() {
-      document.getElementById('recipe-modal').classList.remove('active');
+    async function loadReviews(recipeId) {
+      const list = document.getElementById('reviews-list');
+      list.innerHTML = '<span class="spinner"></span>';
+
+      try {
+        const res = await fetch(`/reviews/recipe/${recipeId}`);
+        const reviews = await res.json();
+
+        list.innerHTML = '';
+        if (reviews.length === 0) {
+          list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem; font-style: italic;">Esta receta aún no tiene calificaciones. ¡Sé el primero!</p>';
+          return;
+        }
+
+        reviews.forEach(rev => {
+          const item = document.createElement('div');
+          item.className = 'review-card-item';
+          const stars = '★'.repeat(rev.rating) + '☆'.repeat(5 - rev.rating);
+          const dateStr = new Date(rev.created_at).toLocaleDateString('es-ES', {
+            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+          });
+
+          item.innerHTML = `
+            <div class="review-user-meta">
+              <span class="review-username">${rev.username}</span>
+              <span style="color: var(--rating-color); font-weight: 600;">${stars}</span>
+            </div>
+            <div class="review-date">${dateStr}</div>
+            <div class="review-comment">${rev.comment || 'Sin comentarios.'}</div>
+          `;
+          list.appendChild(item);
+        });
+      } catch (err) {
+        list.innerHTML = '<p>Error al cargar comentarios.</p>';
+      }
+    }
+
+    function setStarRating(val) {
+      document.getElementById('review-rating-val').value = val;
+      document.querySelectorAll('.rating-star-input').forEach(star => {
+        const starVal = parseInt(star.dataset.value);
+        if (starVal <= val) {
+          star.classList.add('active');
+        } else {
+          star.classList.remove('active');
+        }
+      });
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
     }
 
     async function saveRecipe(event) {
@@ -775,6 +1027,7 @@
       
       const id = document.getElementById('recipe-id').value;
       const title = document.getElementById('recipe-title').value;
+      const author_id = document.getElementById('recipe-author').value;
       const ingredients = document.getElementById('recipe-ingredients').value
         .split(',')
         .map(i => i.trim())
@@ -785,19 +1038,17 @@
         .filter(t => t.length > 0);
       const servings = parseInt(document.getElementById('recipe-servings').value);
 
-      const payload = { title, ingredients, tags, servings };
+      const payload = { title, author_id, ingredients, tags, servings };
 
       try {
         let res;
         if (id) {
-          // Edit existing recipe
           res = await fetch(`/recipes/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
         } else {
-          // Create new recipe
           res = await fetch('/recipes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -806,7 +1057,7 @@
         }
 
         if (res.ok) {
-          closeModal();
+          closeModal('recipe-modal');
           loadRecipes();
         } else {
           alert('Hubo un error al guardar la receta');
@@ -814,6 +1065,44 @@
       } catch (err) {
         console.error(err);
         alert('Error al conectar con el servidor');
+      }
+    }
+
+    async function submitReview(event) {
+      event.preventDefault();
+
+      const recipe_id = document.getElementById('review-recipe-id').value;
+      const user_id = document.getElementById('review-user').value;
+      const rating = parseInt(document.getElementById('review-rating-val').value);
+      const comment = document.getElementById('review-comment').value;
+
+      if (!user_id) {
+        alert('Por favor selecciona un usuario.');
+        return;
+      }
+
+      const payload = { recipe_id, user_id, rating, comment };
+
+      try {
+        const res = await fetch('/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          document.getElementById('review-comment').value = '';
+          loadReviews(recipe_id);
+          // Refresh average rating inside details modal
+          const resRecipe = await fetch(`/recipes/${recipe_id}`);
+          const r = await resRecipe.json();
+          document.getElementById('details-avg-rating').innerText = `⭐ ${r.average_rating.toFixed(1)}`;
+          loadRecipes(); // reload main grid as well
+        } else {
+          alert('Error al guardar la reseña');
+        }
+      } catch (err) {
+        console.error(err);
       }
     }
 
@@ -832,8 +1121,10 @@
       }
     }
 
-    // Initial load
-    loadRecipes();
+    // Initial sequence
+    fetchUsers().then(() => {
+      loadRecipes();
+    });
   </script>
 </body>
 </html>
