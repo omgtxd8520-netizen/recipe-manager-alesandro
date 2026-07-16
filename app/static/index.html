@@ -2,30 +2,838 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RecipeManager — UI</title>
-  <style>body{font-family:Arial,Helvetica,sans-serif;padding:20px}ul{list-style:none;padding:0}li{margin:8px 0}</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RecipeManager — Panel de Control</title>
+  <!-- Google Fonts & Tailwind-like CSS variables for maximum flexibility -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover-border: rgba(255, 255, 255, 0.2);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+      --accent-glow: rgba(168, 85, 247, 0.15);
+      --accent-color: #d946ef;
+      --success-color: #10b981;
+      --font-family: 'Outfit', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient background glows */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      top: -100px;
+      left: -100px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.08) 0%, transparent 70%);
+      bottom: -150px;
+      right: -150px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Header Design */
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--primary-gradient);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: white;
+      box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .author-badge {
+      display: inline-block;
+      margin-top: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .author-badge strong {
+      color: var(--accent-color);
+    }
+
+    /* Search and Controls Section */
+    .controls-panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      padding: 24px;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      margin-bottom: 40px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .search-wrapper {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search-input-container {
+      flex: 1;
+      min-width: 280px;
+      position: relative;
+    }
+
+    .search-input-container input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      padding: 16px 20px 16px 50px;
+      border-radius: 16px;
+      color: var(--text-main);
+      font-size: 1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .search-input-container input:focus {
+      outline: none;
+      border-color: #a855f7;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      pointer-events: none;
+    }
+
+    /* Primary & Secondary Buttons */
+    .btn {
+      background: var(--primary-gradient);
+      border: none;
+      color: white;
+      padding: 16px 28px;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(236, 72, 153, 0.2);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.35);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--card-hover-border);
+      box-shadow: none;
+    }
+
+    /* Tag Filters */
+    .filter-tags {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tag {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .filter-tag:hover, .filter-tag.active {
+      background: var(--primary-gradient);
+      color: white;
+      border-color: transparent;
+      transform: scale(1.05);
+    }
+
+    /* Recipes Grid */
+    .recipes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      animation: fadeIn 1s ease-out;
+    }
+
+    /* Recipe Card */
+    .recipe-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .recipe-card::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 4px;
+      top: 0;
+      left: 0;
+      background: var(--primary-gradient);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .recipe-card:hover {
+      transform: translateY(-5px) scale(1.01);
+      border-color: var(--card-hover-border);
+      box-shadow: 0 12px 30px rgba(168, 85, 247, 0.15);
+    }
+
+    .recipe-card:hover::before {
+      opacity: 1;
+    }
+
+    .recipe-header {
+      margin-bottom: 16px;
+    }
+
+    .recipe-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .servings-badge {
+      background: rgba(168, 85, 247, 0.12);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      color: #c084fc;
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .recipe-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 8px;
+      line-height: 1.25;
+    }
+
+    /* Recipe tags */
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .card-tag {
+      background: rgba(255, 255, 255, 0.05);
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+    }
+
+    /* Ingredients section */
+    .ingredients-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    .ingredients-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .ingredient-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      color: #e5e7eb;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+
+    /* Card Actions */
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 16px;
+    }
+
+    .action-icon-btn {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .action-icon-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border-color: var(--card-hover-border);
+    }
+
+    .action-icon-btn.delete-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Empty Grid State */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 40px;
+      background: var(--card-bg);
+      border: 1px dashed var(--card-border);
+      border-radius: 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Form Modal overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      width: 100%;
+      max-width: 500px;
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .close-modal-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #a855f7;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    /* Spinner Animation */
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.05);
+      border-radius: 50%;
+      border-top: 3px solid #a855f7;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    /* Keyframes */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
 </head>
 <body>
-  <h1>RecipeManager (Alesandro David Fajardo Torres)</h1>
-  <p>Pequeña interfaz para listar recetas</p>
-  <input id="q" placeholder="Buscar ingrediente o texto" />
-  <button onclick="load()">Buscar</button>
-  <ul id="list"></ul>
+  <div class="container">
+    <header>
+      <div class="logo-container">
+        <div class="logo-icon">🍳</div>
+        <h1>RecipeManager</h1>
+      </div>
+      <p style="color: var(--text-muted);">Administración elegante y estructurada de recetas culinarias</p>
+      <div class="author-badge">Proyecto de: <strong>Alesandro David Fajardo Torres</strong></div>
+    </header>
+
+    <div class="controls-panel">
+      <div class="search-wrapper">
+        <div class="search-input-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="q" placeholder="Buscar por título, ingrediente o etiqueta..." oninput="debounceLoad()" />
+        </div>
+        <button class="btn btn-secondary" onclick="clearSearch()">Limpiar</button>
+        <button class="btn" onclick="openModal('create')">➕ Nueva Receta</button>
+      </div>
+      <div class="filter-tags" id="quick-tags">
+        <!-- Quick filters will be inserted here dynamically -->
+      </div>
+    </div>
+
+    <div class="recipes-grid" id="recipes-grid">
+      <!-- Recipes list loaded dynamically -->
+    </div>
+  </div>
+
+  <!-- Create/Edit Recipe Modal -->
+  <div class="modal-overlay" id="recipe-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">Agregar Nueva Receta</h2>
+        <button class="close-modal-btn" onclick="closeModal()">✕</button>
+      </div>
+      <form id="recipe-form" onsubmit="saveRecipe(event)">
+        <input type="hidden" id="recipe-id" />
+        <div class="form-group">
+          <label for="recipe-title">Título de la receta *</label>
+          <input type="text" id="recipe-title" required placeholder="Ej: Pizza Napolitana" />
+        </div>
+        <div class="form-group">
+          <label for="recipe-ingredients">Ingredientes (separados por coma) *</label>
+          <input type="text" id="recipe-ingredients" required placeholder="Ej: Queso, Tomate, Harina, Albahaca" />
+        </div>
+        <div class="form-group">
+          <label for="recipe-tags">Etiquetas/Tags (separados por coma)</label>
+          <input type="text" id="recipe-tags" placeholder="Ej: Italiana, Almuerzo, Rápido" />
+        </div>
+        <div class="form-group">
+          <label for="recipe-servings">Porciones / Porción</label>
+          <input type="number" id="recipe-servings" min="1" value="2" required />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+          <button type="submit" class="btn">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
-    async function load(){
-      const q = document.getElementById('q').value;
-      const url = '/recipes' + (q?('?q='+encodeURIComponent(q)):'');
-      const res = await fetch(url);
-      const data = await res.json();
-      const list = document.getElementById('list'); list.innerHTML='';
-      data.forEach(r=>{
-        const li = document.createElement('li');
-        li.innerHTML = `<strong>${r.title}</strong> — ${r.ingredients? r.ingredients.join(', '):''}`;
-        list.appendChild(li);
+    let activeTag = '';
+    let debounceTimer;
+
+    function debounceLoad() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        loadRecipes();
+      }, 300);
+    }
+
+    function clearSearch() {
+      document.getElementById('q').value = '';
+      activeTag = '';
+      updateTagFilters();
+      loadRecipes();
+    }
+
+    function filterByTag(tag) {
+      if (activeTag === tag) {
+        activeTag = '';
+      } else {
+        activeTag = tag;
+      }
+      updateTagFilters();
+      loadRecipes();
+    }
+
+    function updateTagFilters() {
+      const tags = document.querySelectorAll('.filter-tag');
+      tags.forEach(t => {
+        if (t.dataset.tag === activeTag) {
+          t.classList.add('active');
+        } else {
+          t.classList.remove('active');
+        }
       });
     }
-    load();
+
+    async function loadRecipes() {
+      const query = document.getElementById('q').value;
+      const grid = document.getElementById('recipes-grid');
+      grid.innerHTML = '<div class="empty-state"><span class="spinner"></span><p style="margin-top: 12px;">Cargando recetas...</p></div>';
+
+      try {
+        let url = '/recipes';
+        const params = [];
+        if (query) params.push(`q=${encodeURIComponent(query)}`);
+        if (activeTag) params.push(`tag=${encodeURIComponent(activeTag)}`);
+        if (params.length > 0) url += '?' + params.join('&');
+
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        grid.innerHTML = '';
+        if (data.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🍽️</div>
+              <h3>No se encontraron recetas</h3>
+              <p style="margin-top: 6px;">Prueba ajustando los criterios de búsqueda o agrega una receta nueva.</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Gather all unique tags for the top bar dynamically
+        const allTags = new Set();
+
+        data.forEach(r => {
+          if (r.tags) {
+            r.tags.forEach(t => allTags.add(t));
+          }
+
+          const card = document.createElement('div');
+          card.className = 'recipe-card';
+          
+          const tagsHtml = r.tags ? r.tags.map(t => `<span class="card-tag">${t}</span>`).join('') : '';
+          const ingredientsHtml = r.ingredients ? r.ingredients.map(i => `<span class="ingredient-item">${i}</span>`).join('') : '';
+
+          card.innerHTML = `
+            <div>
+              <div class="recipe-header">
+                <div class="recipe-meta">
+                  <span class="servings-badge">👥 ${r.servings || 1} porciones</span>
+                </div>
+                <h3 class="recipe-title">${r.title}</h3>
+                <div class="card-tags">${tagsHtml}</div>
+              </div>
+              <div class="ingredients-title">Ingredientes</div>
+              <div class="ingredients-list">${ingredientsHtml}</div>
+            </div>
+            <div class="card-actions">
+              <button class="action-icon-btn" onclick="openModal('edit', '${r.id}')" title="Editar receta">✏️</button>
+              <button class="action-icon-btn delete-btn" onclick="deleteRecipe('${r.id}')" title="Eliminar receta">🗑️</button>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+        renderQuickTags(Array.from(allTags));
+      } catch (err) {
+        console.error('Error al cargar recetas:', err);
+        grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error al conectar con la API</h3></div>';
+      }
+    }
+
+    function renderQuickTags(tags) {
+      const container = document.getElementById('quick-tags');
+      if (tags.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      
+      let html = '<span style="font-size: 0.85rem; color: var(--text-muted); align-self: center; margin-right: 8px;">Filtro rápido:</span>';
+      tags.forEach(tag => {
+        const isActive = tag === activeTag ? 'active' : '';
+        html += `<span class="filter-tag ${isActive}" data-tag="${tag}" onclick="filterByTag('${tag}')">${tag}</span>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function openModal(mode, id = '') {
+      const modal = document.getElementById('recipe-modal');
+      const form = document.getElementById('recipe-form');
+      const title = document.getElementById('modal-title');
+      
+      form.reset();
+      document.getElementById('recipe-id').value = '';
+      
+      if (mode === 'create') {
+        title.innerText = 'Agregar Nueva Receta';
+        modal.classList.add('active');
+      } else if (mode === 'edit') {
+        title.innerText = 'Editar Receta';
+        fetch(`/recipes/${id}`)
+          .then(res => res.json())
+          .then(r => {
+            document.getElementById('recipe-id').value = r.id;
+            document.getElementById('recipe-title').value = r.title;
+            document.getElementById('recipe-ingredients').value = r.ingredients ? r.ingredients.join(', ') : '';
+            document.getElementById('recipe-tags').value = r.tags ? r.tags.join(', ') : '';
+            document.getElementById('recipe-servings').value = r.servings || 2;
+            modal.classList.add('active');
+          });
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('recipe-modal').classList.remove('active');
+    }
+
+    async function saveRecipe(event) {
+      event.preventDefault();
+      
+      const id = document.getElementById('recipe-id').value;
+      const title = document.getElementById('recipe-title').value;
+      const ingredients = document.getElementById('recipe-ingredients').value
+        .split(',')
+        .map(i => i.trim())
+        .filter(i => i.length > 0);
+      const tags = document.getElementById('recipe-tags').value
+        .split(',')
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
+      const servings = parseInt(document.getElementById('recipe-servings').value);
+
+      const payload = { title, ingredients, tags, servings };
+
+      try {
+        let res;
+        if (id) {
+          // Edit existing recipe
+          res = await fetch(`/recipes/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        } else {
+          // Create new recipe
+          res = await fetch('/recipes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        }
+
+        if (res.ok) {
+          closeModal();
+          loadRecipes();
+        } else {
+          alert('Hubo un error al guardar la receta');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error al conectar con el servidor');
+      }
+    }
+
+    async function deleteRecipe(id) {
+      if (!confirm('¿Estás seguro de que deseas eliminar esta receta?')) return;
+      
+      try {
+        const res = await fetch(`/recipes/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          loadRecipes();
+        } else {
+          alert('No se pudo eliminar la receta');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Initial load
+    loadRecipes();
   </script>
 </body>
 </html>
