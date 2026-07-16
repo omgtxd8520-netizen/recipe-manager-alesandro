@@ -1,0 +1,25 @@
+{
+  "info": {
+    "name": "RecipeManager",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Index",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "http://localhost:5000/", "protocol": "http", "host": ["localhost"], "port": "5000", "path": [""] }
+      }
+    },
+    {
+      "name": "Create recipe",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\"title\": \"Tostada\", \"ingredients\": [\"pan\"], \"tags\": [\"desayuno\"]}"},
+        "url": { "raw": "http://localhost:5000/recipes", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["recipes"] }
+      }
+    }
+  ]
+}
