@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: recipe_mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - 27017:27017
+
+  web:
+    build: ./app
+    container_name: recipe_web
+    restart: unless-stopped
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/recipe_db
+    depends_on:
+      - mongo
+    ports:
+      - 5000:5000
+
+  jupyter:
+    image: jupyter/minimal-notebook:latest
+    container_name: recipe_jupyter
+    restart: unless-stopped
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./data:/home/jovyan/work/data
+    ports:
+      - 8888:8888
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+
+volumes:
+  mongo-data:

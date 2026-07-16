@@ -1,0 +1,14 @@
+[
+  {
+    "title": "Ensalada rápida",
+    "ingredients": ["lechuga", "tomate", "aceite", "sal"],
+    "tags": ["fácil", "rápida"],
+    "servings": 2
+  },
+  {
+    "title": "Pasta al ajo",
+    "ingredients": ["pasta", "ajo", "aceite", "perejil"],
+    "tags": ["pasta", "almuerzo"],
+    "servings": 3
+  }
+]
