@@ -1,8 +1,6 @@
 # RecipeManager
 
-Autor: Alesandro David Fajardo Torres
-
-RecipeManager es un proyecto educativo y demostrativo para gestionar recetas: almacenar, buscar, analizar y prototipar ideas con Jupyter.
+**Autor:** Alesandro David Fajardo Torres
 
 Badges
 
@@ -11,132 +9,217 @@ Badges
 Índice
 
 - [Descripción](#descripción)
-- [Características](#características)
-- [Tecnologías](#tecnologías)
-- [Estructura del repositorio](#estructura-del-repositorio)
-- [Rápido inicio (Docker)](#rápido-inicio-docker)
+- [Requisitos](#requisitos)
+- [Instalación y uso rápido (Docker)](#instalación-y-uso-rápido-docker)
 - [Desarrollo local (venv)](#desarrollo-local-venv)
-- [API – Resumen de endpoints](#api--resumen-de-endpoints)
-- [Notebooks y análisis](#notebooks-y-análisis)
-- [Tests y CI](#tests-y-ci)
+- [Comandos útiles de Docker y debugging](#comandos-útiles-de-docker-y-debugging)
+- [API — endpoints y ejemplos (curl/Postman)](#api--endpoints-y-ejemplos-curlpostman)
+- [Notebooks Jupyter](#notebooks-jupyter)
+- [Pruebas y CI](#pruebas-y-ci)
+- [Linting y calidad de código](#linting-y-calidad-de-código)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Solución de problemas comunes](#solución-de-problemas-comunes)
 - [Contribuir](#contribuir)
 - [Licencia](#licencia)
 
 Descripción
 
-Proyecto de ejemplo completo que demuestra una pequeña pila web: Flask REST API, MongoDB (contenedor Docker), Jupyter notebooks para análisis y pruebas, scripts de inicialización, pruebas unitarias e integración, y despliegue local con Docker Compose.
+RecipeManager es una aplicación educativa que demuestra una pila completa: API REST en Flask, persistencia con MongoDB (contenedor Docker), Jupyter notebooks para análisis y prototipos, tests (unitarios e integración), CI con GitHub Actions y utilidades para desarrollo y despliegue.
 
-Características
+Requisitos
 
-- CRUD de recetas (título, ingredientes, tags, porciones)
-- Búsqueda por texto, ingrediente y tag
-- Documentación automática Swagger (/docs)
-- Notebook Jupyter con ejemplos de análisis de datos
-- Script para poblar la base de datos con datos de ejemplo
-- GitHub Actions CI con tests e integración contra Mongo
-- Pequeña interfaz estática para pruebas rápidas
+- Git
+- Docker Desktop (Windows/Mac/Linux) o Docker Engine + docker-compose
+- Python 3.11+ (para desarrollo local)
+- curl (para probar endpoints desde terminal)
 
-Tecnologías
+Instalación y uso rápido (Docker)
 
-- Python 3.11
-- Flask + flask-restx (OpenAPI/Swagger)
-- MongoDB (contenedor Docker)
-- Jupyter Lab (imagen oficial)
-- Docker Compose
-- pytest, mongomock para pruebas
+1) Clonar el repositorio
+
+  git clone https://github.com/omgtxd8520-netizen/recipe-manager-alesandro.git
+  cd recipe-manager-alesandro
+
+2) Copiar variables de entorno (si aplica)
+
+  cp .env.example .env  # crearás variables si las necesitas (opcional)
+
+3) Levantar servicios con Docker Compose
+
+  docker compose up --build
+
+  # O en background
+  docker compose up --build -d
+
+4) Sembrar datos de ejemplo (desde host):
+
+  docker compose exec web python scripts/seed.py
+
+5) Servicios disponibles
+
+- API: http://localhost:5000
+- Swagger UI (OpenAPI): http://localhost:5000/docs
+- Jupyter Lab: http://localhost:8888  (token aparece en los logs del contenedor jupyter)
+
+Desarrollo local (venv)
+
+Windows (PowerShell)
+
+  python -m venv .venv
+  .\.venv\Scripts\Activate.ps1
+  python -m pip install --upgrade pip
+  pip install -r app/requirements.txt
+
+Linux / macOS
+
+  python3 -m venv .venv
+  source .venv/bin/activate
+  python -m pip install --upgrade pip
+  pip install -r app/requirements.txt
+
+Ejecutar la API localmente (conecta a Mongo local o contenedor)
+
+# Opción A — conectar al Mongo que levantaste con Docker Compose
+$env:MONGO_URI = 'mongodb://localhost:27017/recipe_db'  # PowerShell
+python -m flask run --host=0.0.0.0
+
+# Opción B — usar Mongo mock (solo para tests rápidos)
+$env:MONGO_USE_MOCK = '1'
+python -m flask run --host=0.0.0.0
+
+Pruebas (pytest)
+
+# Ejecutar tests unitarios
+pytest -q tests/test_app.py
+
+# Ejecutar todos los tests (unit + integración)
+# Asegúrate de que un servicio Mongo esté disponible (docker compose up -d)
+pytest -q
+
+Comandos útiles de Docker y debugging
+
+# Ver contenedores en ejecución
+docker ps
+
+# Ver logs (seguimiento)
+docker compose logs -f web
+
+# Acceder al shell del contenedor web
+docker compose exec web sh
+
+# Acceder a la shell de MongoDB (si el contenedor se llama "recipe_mongo")
+docker exec -it recipe_mongo mongo
+
+# Parar servicios
+docker compose down
+
+# Reconstruir imágenes
+docker compose build --no-cache
+
+API — endpoints y ejemplos (curl/Postman)
+
+# Listar todas las recetas
+curl http://localhost:5000/recipes
+
+# Búsqueda por ingrediente
+curl "http://localhost:5000/recipes?ingredient=ajo"
+
+# Crear una receta
+curl -X POST -H "Content-Type: application/json" -d '{"title":"Tostada","ingredients":["pan","aceite"],"tags":["desayuno"]}' http://localhost:5000/recipes
+
+# Obtener por id
+curl http://localhost:5000/recipes/<id>
+
+# Reemplazar (PUT)
+curl -X PUT -H "Content-Type: application/json" -d '{"title":"Nueva","ingredients":["x"]}' http://localhost:5000/recipes/<id>
+
+# Borrar
+curl -X DELETE http://localhost:5000/recipes/<id>
+
+Postman
+
+Importa `.postman/RecipeManager.postman_collection.json` en Postman para tener las colecciones y ejemplos listos.
+
+Notebooks Jupyter
+
+El servicio Jupyter se monta sobre ./notebooks y ./data, por lo tanto cualquier cambio en el notebook local se refleja en el contenedor.
+
+Abrir Jupyter Lab (después de docker compose up):
+
+- URL: http://localhost:8888
+- Token: aparece en logs del contenedor jupyter (docker compose logs jupyter)
+
+Pruebas e integración en CI
+
+El proyecto tiene un workflow GitHub Actions en `.github/workflows/ci.yml` que:
+
+- instala dependencias
+- arranca un servicio Mongo en el runner
+- espera a que Mongo esté listo
+- ejecuta lint (flake8) y pytest
+
+Si necesitas reproducir la integración localmente:
+
+1. Levantar el servicio Mongo con docker compose:
+
+  docker compose up -d mongo
+
+2. Exportar la variable de entorno usada por los tests:
+
+  export MONGO_URI='mongodb://localhost:27017/recipe_db'  # Linux/Mac
+  $env:MONGO_URI = 'mongodb://localhost:27017/recipe_db' # PowerShell
+
+3. Ejecutar pytest
+
+  pytest -q
+
+Linting y calidad de código
+
+Se incluye flake8 en `app/requirements.txt`. Para ejecutar localmente:
+
+  flake8 --max-line-length=120 app
 
 Estructura del repositorio
 
-- app/ — código fuente de la API y recursos estáticos
-- data/ — datos de ejemplo (sample_recipes.json)
-- notebooks/ — Jupyter notebooks para análisis
-- scripts/ — utilidades (p. ej. seed.py)
+- app/ — código de la API (Flask + OpenAPI) y static
+- data/ — `sample_recipes.json`
+- notebooks/ — Jupyter notebooks (RecipeAnalysis.ipynb)
+- scripts/ — utilidades (seed.py)
 - tests/ — pruebas unitarias e integración
-- .github/workflows/ — CI
+- .github/workflows/ci.yml — integración continua
 
-Rápido inicio (Docker)
+Solución de problemas comunes
 
-Requisitos: Docker Desktop (Windows/Mac/Linux)
+Permisos Docker en Linux
 
-1. Clonar el repositorio
-2. En la raíz del proyecto ejecutar:
+Si obtienes errores de permiso al ejecutar comandos Docker en Linux:
 
-   docker compose up --build
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+  newgrp docker
 
-3. (Opcional) Sembrar datos de ejemplo desde el contenedor web:
+Problemas con el seed o acceso a archivos
 
-   docker compose exec web python scripts/seed.py
+- Asegúrate que `data/sample_recipes.json` existe y sea legible.
+- Si `docker compose exec web python scripts/seed.py` falla, prueba ejecutar el script desde el host con el MONGO_URI apuntando al contenedor:
 
-4. Servicios:
-- API: http://localhost:5000
-- Swagger UI: http://localhost:5000/docs
-- Jupyter Lab: http://localhost:8888 (token en logs)
+  export MONGO_URI='mongodb://localhost:27017/recipe_db'
+  python scripts/seed.py
 
-Desarrollo local (Virtualenv)
+Trucos para esperar a Mongo en scripts
 
-1. Crear y activar un entorno virtual (Windows PowerShell):
+En CI y scripts de inicialización puede ser necesario esperar a que Mongo acepte conexiones; ejemplo simple en bash:
 
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-
-2. Instalar dependencias:
-
-   pip install -r app/requirements.txt
-
-3. Ejecutar tests:
-
-   pytest -q
-
-4. Ejecutar localmente (usa la misma variable MONGO_URI si quieres conectar al contenedor):
-
-   set MONGO_URI=mongodb://localhost:27017/recipe_db  # Windows (PowerShell: $env:MONGO_URI = '...')
-   python -m flask run --host=0.0.0.0
-
-API – Resumen de endpoints
-
-- GET /recipes — lista recetas (query params: q, ingredient, tag)
-- POST /recipes — crea receta (JSON body)
-- GET /recipes/{id} — obtiene receta
-- PUT /recipes/{id} — reemplaza receta
-- DELETE /recipes/{id} — elimina receta
-- GET /docs — documentación Swagger (OpenAPI)
-
-Ejemplos curl
-
-Listar recetas:
-
-  curl http://localhost:5000/recipes
-
-Buscar por ingrediente:
-
-  curl "http://localhost:5000/recipes?ingredient=ajo"
-
-Crear receta:
-
-  curl -X POST -H "Content-Type: application/json" -d '{"title":"Tostada","ingredients":["pan","aceite"],"tags":["desayuno"]}' http://localhost:5000/recipes
-
-Notebooks y análisis
-
-Abrir Jupyter Lab en http://localhost:8888 y ejecutar `notebooks/RecipeAnalysis.ipynb`. El notebook carga `data/sample_recipes.json` y muestra ejemplos de agregaciones y visualizaciones con pandas.
-
-Tests y CI
-
-- Tests: pytest (tests unitarios e integración). En CI se levanta un servicio Mongo y se ejecutan los tests.
-- Ejecutar localmente: `pytest -q`
+  for i in {1..30}; do nc -z localhost 27017 && break || sleep 1; done
 
 Contribuir
 
-1. Hacer fork y crear una rama descriptiva: `feature/<algo>`
-2. Agregar tests para nuevas funcionalidades
-3. Abrir PR explicando el cambio
-
-Siéntete libre de abrir issues o PRs con mejoras. Sigue las guías de estilo y agrega tests.
-
-Contacto
-
-Autor: Alesandro David Fajardo Torres — usa el repositorio para practicar, clonar y adaptar a tus proyectos.
+1. Fork del repositorio
+2. Crear rama `feature/<descripcion>`
+3. Añadir tests para cambios y ejecutar `pytest`
+4. Abrir PR describiendo los cambios y pasos para reproducir
 
 Licencia
 
-Este proyecto está bajo la Licencia MIT — ver archivo LICENSE para detalles.
+MIT — ver archivo LICENSE
 
